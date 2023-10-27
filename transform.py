@@ -5,6 +5,9 @@ import yaml
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, desc, from_unixtime
 
+# Define the paths and filenames
+data_path = "/home/ubuntu/Desktop/proj_mid/extracted_data/extracted_data.parquet"
+yaml_file_path = "/home/ubuntu/Desktop/proj_mid/config.yaml"
 
 def read_yaml_config(yaml_file_path):
     try:
@@ -83,11 +86,6 @@ def save_to_postgres(df, config):
 
 
 if __name__ == "__main__":
-    # findspark.init()
-
-    # Define the paths and filenames
-    data_path = "/home/ubuntu/Desktop/proj_mid/extracted_data/extracted_data.parquet"
-    yaml_file_path = "/home/ubuntu/Desktop/proj_mid/config.yaml"
 
     # Create a Spark session
     spark = (
