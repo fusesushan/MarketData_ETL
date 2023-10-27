@@ -48,7 +48,7 @@ postgres:
 ### The Pipeline Flowchart
 
 ```mermaid
-graph LR
+graph TD
 A(Activate Venv) --> B[Data Extraction] --> C{Is file Present?}
 C -- No --> D[Raise Exception Message] --> G
 C -- Yes --> E{Is file Modified ?}
