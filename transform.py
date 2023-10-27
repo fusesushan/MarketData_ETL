@@ -86,8 +86,8 @@ if __name__ == "__main__":
     # findspark.init()
 
     # Define the paths and filenames
-    data_path = "extracted_data/extracted_data.parquet"
-    yaml_file_path = "config.yaml"
+    data_path = "/home/ubuntu/Desktop/proj_mid/extracted_data/extracted_data.parquet"
+    yaml_file_path = "/home/ubuntu/Desktop/proj_mid/config.yaml"
 
     # Create a Spark session
     spark = (

@@ -4,7 +4,7 @@ import yaml
 import os
 
 # Define the path to your YAML file
-yaml_file_path = 'config.yaml'
+yaml_file_path = '/home/ubuntu/Desktop/proj_mid/config.yaml'
 
 # Read the YAML file and parse it into a Python dictionary
 try:
@@ -17,11 +17,11 @@ except FileNotFoundError:
 if config is not None:
     stocks = ["GOOGL", "AAPL", "AMZN", "META"]
     start_date = "2023-01-01"
-    last_date = "2023-07-01"
+    last_date = "2023-05-01"
     token = config.get("token")
 
     # Check if the Parquet file already exists
-    parquet_file_path = 'extracted_data/extracted_data.parquet'
+    parquet_file_path = '/home/ubuntu/Desktop/proj_mid/extracted_data/extracted_data.parquet'
     if os.path.exists(parquet_file_path):
         # Read the existing parquet file to get the latest timestamp
         existing_df = pd.read_parquet(parquet_file_path)
@@ -34,8 +34,8 @@ if config is not None:
     stock_data = []
 
     def fetch_stock_data(symbol, start_date, token):
-        # url = f'https://api.marketdata.app/v1/stocks/candles/D/{symbol}?from={start_date}&to={last_date}&token={token}'
-        url = f'https://api.marketdata.app/v1/stocks/candles/D/{symbol}?from={start_date}&token={token}'
+        url = f'https://api.marketdata.app/v1/stocks/candles/D/{symbol}?from={start_date}&to={last_date}&token={token}'
+        # url = f'https://api.marketdata.app/v1/stocks/candles/D/{symbol}?from={start_date}&token={token}'
         try:
             response = requests.get(url)
 
