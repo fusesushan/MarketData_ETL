@@ -21,7 +21,9 @@ Before using this script, ensure you have the following:
 - PostgreSQL installed and configured
 - Apache Airflow installed and configured
 - Required Python packages listed in the `requirements.txt` file. You can install them using:
-> `pip install -r requirements.txt`
+```bash
+pip install -r requirements.txt
+```
 
 
 ### Configuration
