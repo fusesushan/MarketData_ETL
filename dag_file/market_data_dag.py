@@ -5,7 +5,7 @@ from datetime import datetime
 from airflow import DAG
 from airflow.providers.http.sensors.http import HttpSensor
 from airflow.providers.http.operators.http import SimpleHttpOperator  
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator,BranchPythonOperator
 from airflow.sensors.filesystem import FileSensor
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.operators.bash import BashOperator
@@ -70,7 +70,7 @@ with DAG(
 
         # kwargs['ti'].xcom_push(key='timestamp', value=current_timestamp)
 
-    check_file_change_task = PythonOperator(
+    check_file_change_task = BranchPythonOperator(
         task_id='check_file_change',
         provide_context=True,
         python_callable=check_file_change,
@@ -87,5 +87,5 @@ with DAG(
         task_id='skip_transform_load_task',
     )
 
-virtual_env_activate_task >> data_extraction_task >> check_file_task >> check_file_change_task >> [transform_load_task, skip_transform_load_task]
+virtual_env_activate_task >> data_extraction_task >> check_file_task >> check_file_change_task >> [transform_load_task, skip_transform_load_task] 
 
