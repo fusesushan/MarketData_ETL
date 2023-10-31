@@ -3,7 +3,6 @@ import etl_method as etl
 import os
 import logging
 from pathlib import Path
-# import sys
 
 
 # Configure the logging
@@ -72,5 +71,3 @@ def main():
 if __name__ == "__main__":
     logger = etl.setup_logs()
     main()
-    
-    

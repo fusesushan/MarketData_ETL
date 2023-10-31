@@ -1,8 +1,7 @@
 import etl_method as etl
 import logging
 from pathlib import Path
-
-
+import os
 
 # Configure the logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

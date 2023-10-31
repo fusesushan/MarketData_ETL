@@ -88,7 +88,7 @@ def transform_and_load_data(data_path, spark, config):
     try:
         df = spark.read.parquet(data_path)
         df.printSchema()
-        
+
         #validate the data types of the extracted data
         if df:
             if validate_data_types(df):
@@ -100,7 +100,7 @@ def transform_and_load_data(data_path, spark, config):
 
         # Convert timestamp to date format
         df = df.withColumn("t", to_date(from_unixtime(col("t"), "yyyy-MM-dd")))
-        
+
         # Rename columns
         rename = {
             "t": "Date",
