@@ -20,14 +20,14 @@ def make_dir(path):
         os.makedirs(path)
 
 def setup_logging_handler(file_dir):
-    formatter = logging.Formatter(
-        "'%(asctime)s - %(levelname)s - %(message)s'", )
-    logger = logging.getLogger('market_data')
-    file_path = os.path.join(file_dir, f'market_data.log {datetime.now()}')
+    # formatter = logging.Formatter(
+    #     "'%(asctime)s - %(levelname)s - %(message)s'", )
+    # logger = logging.getLogger('market_data')
+    file_path = os.path.join(file_dir, f'{__name__}.log {datetime.now()}')
     logger.setLevel(logging.INFO)
     fh = logging.FileHandler(file_path)
     fh.setLevel(logging.INFO)
-    fh.setFormatter(formatter)
+    # fh.setFormatter(formatter)
     logger.addHandler(fh)
     return logger
 

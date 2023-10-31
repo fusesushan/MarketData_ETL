@@ -5,9 +5,9 @@ import logging
 from pathlib import Path
 
 
-# Configure the logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# # Configure the logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# logger = logging.getLogger(__name__)
 
 # Define the path to your files
 base_dir = Path(__file__).parents[0]
