@@ -1,14 +1,18 @@
 import etl_method as etl
 import logging
+from pathlib import Path
+
 
 
 # Configure the logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-yaml_file_path = "/home/user/Documents/mid-project ETL/MarketData_ETL/config.yaml"
+base_dir = Path(__file__).parents[0]
+yaml_file_path = os.path.join(base_dir, 'config.yaml')
 
 if __name__ == "__main__":
+    logger = etl.setup_logs()
     config = etl.read_yaml_config(yaml_file_path)
 
     if config:

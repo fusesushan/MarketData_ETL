@@ -2,13 +2,17 @@ import pandas as pd
 import etl_method as etl
 import os
 import logging
+from pathlib import Path
+# import sys
+
 
 # Configure the logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Define the path to your files
-yaml_file_path = 'config.yaml'
+base_dir = Path(__file__).parents[0]
+yaml_file_path = os.path.join(base_dir, 'config.yaml')
 
 def main():
     # Read the YAML file and parse it into a Python dictionary
@@ -66,4 +70,7 @@ def main():
         logger.error("Error: Configuration not loaded.")
 
 if __name__ == "__main__":
+    logger = etl.setup_logs()
     main()
+    
+    
