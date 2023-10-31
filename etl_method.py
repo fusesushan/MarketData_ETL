@@ -5,38 +5,45 @@ import requests
 import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, desc, from_unixtime
+import logging
+
+# Configure the logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def fetch_stock_data(url, symbol):
-        try:
-            response = requests.get(url)
+    try:
+        response = requests.get(url)
 
-            if response.status_code in [200, 203]:
-                data = response.json()
-                df = pd.DataFrame(data)
-                df = df.drop('s', axis=1)
-                return df
-            else:
-                print(f"Failed to retrieve data for {symbol}")
-                return None
-        except requests.exceptions.RequestException as e:
-            print(f"Request error for {symbol}: {e}")
+        if response.status_code in [200, 203]:
+            data = response.json()
+            df = pd.DataFrame(data)
+            df = df.drop('s', axis=1)
+            return df
+        else:
+            logger.warning(f"Failed to retrieve data for {symbol}")
             return None
-        except Exception as e:
-            print(f"An error occurred for {symbol}: {e}")
-            return None
-
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request error for {symbol}: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"An error occurred for {symbol}: {e}")
+        return None
 
 def start_spark_session(spark_jar_driverPath):
-    # Create a Spark session
-   return (
-        SparkSession.builder.appName("transform")
-        .config(
-            "spark.driver.extraClassPath",
-           spark_jar_driverPath,
+    try:
+        # Create a Spark session
+        return (
+            SparkSession.builder.appName("transform")
+            .config(
+                "spark.driver.extraClassPath",
+                spark_jar_driverPath,
+            )
+            .getOrCreate()
         )
-        .getOrCreate()
-    )
-
+    except Exception as e:
+        logger.error(f"Error starting Spark session: {e}")
+        return None
 
 def read_yaml_config(yaml_file_path):
     try:
@@ -44,13 +51,12 @@ def read_yaml_config(yaml_file_path):
             config = yaml.safe_load(yaml_file)
         return config
     except FileNotFoundError:
-        print("Error: Config file not found.")
+        logger.error("Error: Config file not found.")
+        return None
+    except Exception as e:
+        logger.error(f"Error reading config file: {e}")
         return None
 
-    except Exception as e:
-        print(f"Error reading config file: {e}")
-        return None
-    
 def transform_and_load_data(data_path, spark, config):
     try:
         df = spark.read.parquet(data_path)
@@ -69,25 +75,15 @@ def transform_and_load_data(data_path, spark, config):
             "v": "Volume",
         }
 
-        df = df.withColumnsRenamed(rename)
+        df = df.select([col(c).alias(rename.get(c, c)) for c in df.columns])
 
         # Order by Date in descending order
-        df = df.select(
-            col("Date"),
-            col("Stock"),
-            col("Open"),
-            col("High"),
-            col("Low"),
-            col("Close"),
-            col("Volume"),
-        ).orderBy(desc(col("Date")))
+        df = df.orderBy(desc("Date"))
 
         return df
     except Exception as e:
-        print(f"Error loading and transforming data: {e}")
-        
+        logger.error(f"Error loading and transforming data: {e}")
         return None
-
 
 def save_to_postgres(df, config):
     try:
@@ -99,14 +95,12 @@ def save_to_postgres(df, config):
         }
 
         # Save DataFrames to PostgreSQL table
-        
         df.write.jdbc(
-            url= jdbc_url,
+            url=jdbc_url,
             table="market_data",
             mode="overwrite",
             properties=jdbc_properties,
         )
-        print("Data loaded sucessfully")
+        logger.info("Data loaded successfully")
     except Exception as e:
-        print(f"Error saving data to PostgreSQL: {e}")
-
+        logger.error(f"Error saving data to PostgreSQL: {e}")

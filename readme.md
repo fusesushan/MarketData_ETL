@@ -25,7 +25,6 @@ Before using this script, ensure you have the following:
 pip install -r requirements.txt
 ```
 
-
 ### Configuration
 To configure the script, create a YAML file with the following structure and provide the path to the YAML file in the script:
 ```yaml
