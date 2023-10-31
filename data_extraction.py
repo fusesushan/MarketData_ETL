@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Define the path to your files
-yaml_file_path = '/home/user/Documents/mid-project ETL/MarketData_ETL/config.yaml'
+yaml_file_path = 'config.yaml'
 
 def main():
     # Read the YAML file and parse it into a Python dictionary
