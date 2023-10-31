@@ -4,11 +4,12 @@ import yaml
 import requests
 import pandas as pd
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, desc, from_unixtime
 from pathlib import Path
 import os
 from datetime import datetime
+from pyspark.sql.functions import col, desc, from_unixtime,to_date
 import logging
+from data_validation import validate_data_types
 
 # Configure the logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -87,10 +88,19 @@ def transform_and_load_data(data_path, spark, config):
     try:
         df = spark.read.parquet(data_path)
         df.printSchema()
+        
+        #validate the data types of the extracted data
+        if df:
+            if validate_data_types(df):
+                df.show()
+            else:
+                logger.error("Data type validation failed. Aborting ETL process.")
+        else:
+            logger.error("Data transformation failed. Aborting ETL process.")
 
         # Convert timestamp to date format
-        df = df.withColumn("t", from_unixtime(col("t"), "yyyy-MM-dd"))
-
+        df = df.withColumn("t", to_date(from_unixtime(col("t"), "yyyy-MM-dd")))
+        
         # Rename columns
         rename = {
             "t": "Date",
@@ -105,7 +115,7 @@ def transform_and_load_data(data_path, spark, config):
 
         # Order by Date in descending order
         df = df.orderBy(desc("Date"))
-
+        df.printSchema()
         return df
     except Exception as e:
         logger.error(f"Error loading and transforming data: {e}")
