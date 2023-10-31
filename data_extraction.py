@@ -1,26 +1,20 @@
-import requests
 import pandas as pd
-import yaml
+import etl_method as etl
 import os
 
 # Define the path to your files
-yaml_file_path = '/home/ubuntu/Desktop/proj_mid/config.yaml'
-parquet_file_path = '/home/ubuntu/Desktop/proj_mid/extracted_data/extracted_data.parquet'
+yaml_file_path = '/home/user/Documents/mid-project ETL/MarketData_ETL/config.yaml'
 
 # Read the YAML file and parse it into a Python dictionary
-try:
-    with open(yaml_file_path, 'r') as yaml_file:
-        config = yaml.safe_load(yaml_file)
-except FileNotFoundError:
-    print("Error: Config file not found.")
-    config = None
+config = etl.read_yaml_config(yaml_file_path)
 
 if config is not None:
+    parquet_file_path = config["datapath"]
     stocks = ["GOOGL", "AAPL", "AMZN", "META"]
     start_date = "2023-01-01"
     end_date = "2023-05-01"
     token = config.get("token")
-
+  
     # Check if the Parquet file already exists
     if os.path.exists(parquet_file_path):
         # Read the existing parquet file to get the latest timestamp
@@ -32,35 +26,15 @@ if config is not None:
 
     # Create an empty list to store DataFrames
     stock_data = []
-
-    def fetch_stock_data(symbol, start_date, end_date, token):
-        url = f'https://api.marketdata.app/v1/stocks/candles/D/{symbol}?from={start_date}&to={end_date}&token={token}'
-        # url = f'https://api.marketdata.app/v1/stocks/candles/D/{symbol}?from={start_date}&token={token}'
-        try:
-            response = requests.get(url)
-
-            if response.status_code in [200, 203]:
-                data = response.json()
-                df = pd.DataFrame(data)
-                df = df.drop('s', axis=1)
-                return df
-            else:
-                print(f"Failed to retrieve data for {symbol}")
-                return None
-        except requests.exceptions.RequestException as e:
-            print(f"Request error for {symbol}: {e}")
-            return None
-        except Exception as e:
-            print(f"An error occurred for {symbol}: {e}")
-            return None
-
-    # Fetch data for each stock and store it in the list
+    
     # Only overwrite file if fetched data is newer than the latest timestamp in the existing file
     for symbol in stocks:
+        url = f'https://api.marketdata.app/v1/stocks/candles/D/{symbol}?from={start_date}&to={end_date}&token={token}'
+    # url = f'https://api.marketdata.app/v1/stocks/candles/D/{symbol}?from={start_date}&token={token}'
         if latest_timestamp == 0 or existing_df is None or existing_df.empty:
-            df = fetch_stock_data(symbol, start_date, token)
+            df = etl.fetch_stock_data(url, symbol)
         else:
-            df = fetch_stock_data(symbol, start_date, token)
+            df = etl.fetch_stock_data(url, symbol)
             if existing_df['t'].max() == df['t'].max():
                 df = None
                 print(f"No new data available for {symbol}. Skipping.")

@@ -1,13 +1,42 @@
 import findspark
-
 findspark.init()
 import yaml
+import requests
+import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, desc, from_unixtime
 
-# Define the paths and filenames
-data_path = "/home/ubuntu/Desktop/proj_mid/extracted_data/extracted_data.parquet"
-yaml_file_path = "/home/ubuntu/Desktop/proj_mid/config.yaml"
+def fetch_stock_data(url, symbol):
+        try:
+            response = requests.get(url)
+
+            if response.status_code in [200, 203]:
+                data = response.json()
+                df = pd.DataFrame(data)
+                df = df.drop('s', axis=1)
+                return df
+            else:
+                print(f"Failed to retrieve data for {symbol}")
+                return None
+        except requests.exceptions.RequestException as e:
+            print(f"Request error for {symbol}: {e}")
+            return None
+        except Exception as e:
+            print(f"An error occurred for {symbol}: {e}")
+            return None
+
+
+def start_spark_session(spark_jar_driverPath):
+    # Create a Spark session
+   return (
+        SparkSession.builder.appName("transform")
+        .config(
+            "spark.driver.extraClassPath",
+           spark_jar_driverPath,
+        )
+        .getOrCreate()
+    )
+
 
 def read_yaml_config(yaml_file_path):
     try:
@@ -16,16 +45,13 @@ def read_yaml_config(yaml_file_path):
         return config
     except FileNotFoundError:
         print("Error: Config file not found.")
-        spark.stop()
         return None
 
     except Exception as e:
         print(f"Error reading config file: {e}")
-        spark.stop()
         return None
-
-
-def load_and_transform_data(data_path, spark, config):
+    
+def transform_and_load_data(data_path, spark, config):
     try:
         df = spark.read.parquet(data_path)
         df.printSchema()
@@ -59,48 +85,28 @@ def load_and_transform_data(data_path, spark, config):
         return df
     except Exception as e:
         print(f"Error loading and transforming data: {e}")
-        spark.stop()
+        
         return None
 
 
 def save_to_postgres(df, config):
     try:
-        jdbc_url = config["postgres"]["url"]
+        jdbc_url = f"jdbc:postgresql://{config['postgres']['host']}:{config['postgres']['port']}/{config['postgres']['dbname']}"
         jdbc_properties = {
             "user": config["postgres"]["user"],
             "password": config["postgres"]["password"],
-            "driver": "org.postgresql.Driver",
+            "driver": config["postgres"]["driver"],
         }
 
         # Save DataFrames to PostgreSQL table
+        
         df.write.jdbc(
-            url=jdbc_url,
+            url= jdbc_url,
             table="market_data",
             mode="overwrite",
             properties=jdbc_properties,
         )
-        spark.stop()
+        print("Data loaded sucessfully")
     except Exception as e:
         print(f"Error saving data to PostgreSQL: {e}")
-        spark.stop()
 
-
-if __name__ == "__main__":
-
-    # Create a Spark session
-    spark = (
-        SparkSession.builder.appName("transform")
-        .config(
-            "spark.driver.extraClassPath",
-            "/usr/lib/jvm/java-11-openjdk-amd64/lib/postgresql-42.6.0.jar",
-        )
-        .getOrCreate()
-    )
-
-    config = read_yaml_config(yaml_file_path)
-
-    if config:
-        df = load_and_transform_data(data_path, spark, config)
-        if df:
-            df.show()
-            save_to_postgres(df, config)
