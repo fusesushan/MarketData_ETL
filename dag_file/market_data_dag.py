@@ -11,6 +11,7 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.operators.bash import BashOperator
 from airflow.models import Variable
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.models import Variable
 
 
 with DAG(
@@ -23,12 +24,12 @@ with DAG(
 
     virtual_env_activate_task = BashOperator(
         task_id='virtual_env_activate',
-        bash_command= "source /home/ubuntu/Desktop/proj_mid/mid_term_proj/bin/activate",
+        bash_command=f"source {Variable.get('base_dir')}mid_term_proj/bin/activate",
     )
 
     command_exec = f'''
-        python3 /home/ubuntu/Desktop/proj_mid/data_extraction.py &&
-        date "+%s" > /home/ubuntu/Desktop/proj_mid/timestamp.txt
+        python3 {Variable.get('base_dir')}data_extraction.py &&
+        date "+%s" > {Variable.get('base_dir')}timestamp.txt
     '''
 
     data_extraction_task = BashOperator(
@@ -39,14 +40,14 @@ with DAG(
 
     check_file_task = FileSensor(
         task_id = "check_for_file",
-        filepath= "/home/ubuntu/Desktop/proj_mid/extracted_data/extracted_data.parquet",
+        filepath= f"{Variable.get('base_dir')}extracted_data/extracted_data.parquet",
         poke_interval=15, 
         timeout=30,  
         mode='poke' 
     )
  
 
-    File_path = '/home/ubuntu/Desktop/proj_mid/extracted_data/extracted_data.parquet'
+    File_path = f"{Variable.get('base_dir')}extracted_data/extracted_data.parquet"
 
     # Function to check if the file content has changed
     def check_file_change(**kwargs):
@@ -54,7 +55,7 @@ with DAG(
 
         current_timestamp = int(os.path.getmtime(File_path))
         print("Current Timestamp: ", str(current_timestamp))
-        with open('/home/ubuntu/Desktop/proj_mid/timestamp.txt', 'r') as file:
+        with open(f"{Variable.get('base_dir')}timestamp.txt", 'r') as file:
             previous_timestamp = int(file.readline())
 
 
@@ -80,7 +81,7 @@ with DAG(
   
     transform_load_task = BashOperator(
         task_id='transform_load',
-        bash_command='/opt/spark/bin/spark-submit --driver-class-path /lib/jvm/java-11-openjdk-amd64/lib/postgresql-42.6.0.jar /home/ubuntu/Desktop/proj_mid/transform.py',
+        bash_command=f"{Variable.get('spark_submit_path')} --driver-class-path {Variable.get('postgres_jar_file_path')} {Variable.get('base_dir')}transform_and_load_data.py",
     )
 
     skip_transform_load_task = DummyOperator(
