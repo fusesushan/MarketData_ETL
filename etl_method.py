@@ -9,7 +9,6 @@ import os
 from datetime import datetime
 from pyspark.sql.functions import col, desc, from_unixtime,to_date
 import logging
-from data_validation import validate_data_types
 
 # Configure the logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -79,6 +78,37 @@ def read_yaml_config(yaml_file_path):
     except Exception as e:
         logger.error(f"Error reading config file: {e}")
         return None
+
+def validate_data_types(df):
+    try:
+        expected_schema = {
+            "t": "bigint",
+            "o": "double",
+            "h": "double",
+            "l": "double",
+            "c": "double",
+            "v": "bigint",
+            "Stock": "string"
+        }
+
+        for col_name, col_type in df.dtypes:
+            if col_name in expected_schema:
+                expected_type = expected_schema[col_name]
+                if col_type != expected_type:
+                    logger.error(f"Data type validation failed for column: {col_name}. Expected data type {expected_type} but got {col_type}.")
+                    return False
+            else:
+                logger.error(f"Data type validation failed for column: {col_name}. Column not expected in schema.")
+                return False
+
+        logger.info("Data type validation passed.")
+        return True
+    except Exception as e:
+        logger.error(f"Data type validation error: {e}")
+        return False
+
+
+
 
 def transform_and_load_data(data_path, spark, config):
     try:

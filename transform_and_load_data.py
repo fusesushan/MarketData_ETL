@@ -1,5 +1,4 @@
 import etl_method as etl
-import logging
 from pathlib import Path
 import os
 

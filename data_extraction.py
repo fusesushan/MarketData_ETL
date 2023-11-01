@@ -1,7 +1,6 @@
 import pandas as pd
 import etl_method as etl
 import os
-import logging
 from pathlib import Path
 
 # Define the path to your files
