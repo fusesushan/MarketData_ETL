@@ -28,11 +28,19 @@ pip install -r requirements.txt
 ### Configuration
 To configure the script, create a YAML file with the following structure and provide the path to the YAML file in the script:
 ```yaml
-token: YOUR_API_TOKEN
+token: YOUR_TOKEN_HERE
+
 postgres:
-  url: DATABASE_URL
-  user: DATABASE_USER
-  password: DATABASE_PASSWORD
+  host: YOUR_DB_HOST
+  port: YOUR_DB_PORT
+  dbname: YOUR_DB_NAME
+  user: YOUR_DB_USER
+  password: YOUR_DB_PASSWORD
+  driver: YOUR_DB_DRIVER
+
+datapath: "YOUR_DATA_PATH/extracted_data.parquet"
+spark_jar_driverPath: "YOUR_SPARK_JAR_PATH/postgresql.jar"
+
 ```
 ### Usage
 
