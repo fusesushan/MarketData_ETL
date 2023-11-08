@@ -8,7 +8,7 @@ yaml_file_path = os.path.join(base_dir, 'config.yaml')
 
 logger = etl.setup_logs()
 
-if __name__ == "__main__":
+def main():
     config = etl.read_yaml_config(yaml_file_path)
 
     if config:
@@ -29,3 +29,7 @@ if __name__ == "__main__":
             logger.error("Failed to create a Spark session.")
     else:
         logger.error("Error: Configuration not loaded.")
+
+
+if __name__ == "__main__":
+    main()
