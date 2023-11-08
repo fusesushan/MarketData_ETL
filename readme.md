@@ -59,11 +59,13 @@ spark_jar_driverPath: "YOUR_SPARK_JAR_PATH/postgresql.jar"
 ```mermaid
 graph TD
 A(Activate Venv) --> B[Data Extraction] --> C{Is file Present?}
-C -- No --> D[Raise Exception Message] --> G
+C -- No --> D[Raise Exception Message] --> I
 C -- Yes --> E{Is file Modified ?}
-E -- No --> G
-E -- Yes --> F[spark-submit the Transform and Load Script]
-F --> G(End the Pipeline)
+E -- No --> F[Send 'Db-Unmodified' Email]
+F --> I
+E -- Yes --> G[spark-submit the Transform and Load Script]
+G --> H[Send 'Db-Modified' Email]
+H --> I(End the Pipeline)
 ```
 > A Flowchart showing the ETL Pipeline in DAG file
 
