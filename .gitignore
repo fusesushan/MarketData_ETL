@@ -1,4 +1,4 @@
 config.yaml
 mid_term_proj/
-.pyc
-.log
+MarketData_ETL/logs
+MarketData_ETL/__pycache__
