@@ -75,5 +75,3 @@ H --> I(End the Pipeline)
 [__Prateek Pudasainee__](https://www.linkedin.com/in/prateek-pudasainee-648589239/)
 [__Puja Pathak__](https://www.linkedin.com/in/puja-pathak-542b6b219/)
 
-## Mentor
->[__Aman Shah__](https://www.linkedin.com/in/aman-shah-26687b189/)
